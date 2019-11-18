@@ -1,0 +1,12 @@
+---
+
+## artifactory default vars
+
+## vars without trailing slashes
+jfrog_env_log_level:    "DEBUG"                         # Possible values are: INFO, ERROR, and DEBUG
+jfrog_env_temp_dir:     "/opt/templates/tmp"            # should not be changed
+jfrog_local_target_dir: "/opt/templates/artifacts"      # should not be changed
+artifact:               "templates-generic-local"       # default for template images
+artifact_url_env:       "prd"                           # default for template images, possible values are: prd|lab for specific artifact (templates-generic-local)
+artifact_url_release:   ""
+artifact_url_image:     ""
