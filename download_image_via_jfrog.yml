@@ -1,0 +1,48 @@
+---
+
+## download artifact from artifactory
+
+
+- hosts: localhost
+  gather_facts: false
+  # become: true
+  # become_user: root
+  # become_method: sudo
+
+
+  pre_tasks:
+
+    - include_vars: vars.yml
+
+    - name: test vars
+      fail:
+        msg: "Not all variables were filled correctly see at https://github.com/rtulke/ansible-jfrog-artifactory for further information"
+      when:
+        - (artifact is undefined) or (artifact is none) or (artifact | trim == '') or 
+          (artifact_url_env is undefined) or (artifact_url_env is none) or (artifact_url_env | trim == '') or
+          (artifact_url_release is undefined) or (artifact_url_release is none) or (artifact_url_release | trim == '') or
+          (artifact_url_image is undefined) or (artifact_url_image is none) or (artifact_url_image | trim == '') or
+          (jfrog_local_target_dir is undefined) or (jfrog_local_target_dir is none) or (jfrog_local_target_dir | trim == '')
+
+  tasks:
+
+    - name: start downloading image from artifactory
+      shell: jfrog rt dl {{ artifact }}/{{ artifact_url_env }}/{{ artifact_url_release }}/{{ artifact_url_image }}/ {{ jfrog_local_target_dir }}/
+      register: cmdreturn
+      until: cmdreturn is not failed
+      retries: 3
+      args:
+        executable: /bin/bash
+        chdir: '{{ jfrog_local_target_dir }}'
+      environment:
+        JFROG_CLI_LOG_LEVEL: '{{ jfrog_env_log_level }}'
+        JFROG_CLI_TEMP_DIR: '{{ jfrog_env_temp_dir }}'
+      ignore_errors: yes
+      delegate_to: localhost
+
+    - name: print out error information
+      debug:
+        msg: cmdreturn
+      when: cmdreturn is failed
+
+...
